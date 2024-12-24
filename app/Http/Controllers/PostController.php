@@ -14,7 +14,7 @@ class PostController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware('auth:sanctum', except: ['index, show'])
+            new Middleware('auth:sanctum', except: ['index', 'show'])
         ];
     }
 
@@ -23,7 +23,8 @@ class PostController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        return Post::all();
+        return Post::with('user')->latest()->get();
+        // return Post::all();
     }
 
     /**
