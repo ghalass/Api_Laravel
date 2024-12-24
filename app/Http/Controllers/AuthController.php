@@ -33,7 +33,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return [
                 'errors' => [
-                    'email' => 'E-mail ou mot de passe incorrect!'
+                    'email' => ['E-mail ou mot de passe incorrect!']
                 ]
             ];
         }
