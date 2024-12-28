@@ -33,6 +33,16 @@ class Engin extends Model
         return $this->hasMany(Saisierje::class);
     }
 
+    public function saisiehrm(): HasMany
+    {
+        return $this->hasMany(Saisiehrm::class);
+    }
+
+    public function saisiehim(): HasMany
+    {
+        return $this->hasMany(Saisiehim::class);
+    }
+
     public function saisielubrifiant(): HasMany
     {
         return $this->hasMany(Saisielubrifiant::class);

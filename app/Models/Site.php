@@ -22,4 +22,9 @@ class Site extends Model
     {
         return $this->hasMany(Saisierje::class);
     }
+
+    public function saisiehrm(): HasMany
+    {
+        return $this->hasMany(Saisiehrm::class);
+    }
 }

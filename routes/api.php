@@ -6,6 +6,8 @@ use App\Http\Controllers\LubrifiantController;
 use App\Http\Controllers\PanneController;
 use App\Http\Controllers\ParcController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SaisiehimController;
+use App\Http\Controllers\SaisiehrmController;
 use App\Http\Controllers\SaisielubrifiantController;
 use App\Http\Controllers\SaisierjeController;
 use App\Http\Controllers\SiteController;
@@ -32,7 +34,13 @@ Route::apiResource('parcs', ParcController::class);
 Route::apiResource('engins', EnginController::class);
 Route::apiResource('typepannes', TypepanneController::class);
 Route::apiResource('pannes', PanneController::class);
-Route::apiResource('saisierjes', SaisierjeController::class);
 Route::apiResource('typelubrifiants', TypelubrifiantController::class);
 Route::apiResource('lubrifiants', LubrifiantController::class);
+
+Route::get('/saisierjes/getRJE', [SaisierjeController::class, 'getRJE']);
+Route::apiResource('saisierjes', SaisierjeController::class);
+
+Route::apiResource('saisiehrms', SaisiehrmController::class);
+Route::apiResource('saisiehims', SaisiehimController::class);
+
 Route::apiResource('saisielubrifiants', SaisielubrifiantController::class);

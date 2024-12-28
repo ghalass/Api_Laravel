@@ -26,4 +26,9 @@ class Panne extends Model
     {
         return $this->hasMany(Saisierje::class);
     }
+
+    public function saisiehim(): HasMany
+    {
+        return $this->hasMany(Saisiehim::class);
+    }
 }
