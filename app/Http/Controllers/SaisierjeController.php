@@ -120,6 +120,7 @@ class SaisierjeController extends Controller implements HasMiddleware
             ->format('Y');
 
         /****** HRM */
+        /*
         $hrm_j = DB::query()
             ->select([
                 'e.id AS ENGIN_ID',
@@ -185,6 +186,7 @@ class SaisierjeController extends Controller implements HasMiddleware
             ->groupBy('e.id');
 
         /****** HIM */
+        /*
         $him_j = DB::query()
             ->select([
                 'e.id AS ENGIN_ID',
@@ -240,11 +242,14 @@ class SaisierjeController extends Controller implements HasMiddleware
             })
             ->groupBy('e.id');
 
+*/
+
 
         /****** RJE */
         // DISP Disponibilité (%) DISP = 1-(HIM/NHO) X100
         // TDM Taux de marche (%) TDM = HRM/NHO X 100
         // MTBF Temps moyen entre 2 pannes (H) MTBF = HRM/NI
+        /*
         $res_j = DB::query()
             ->select(
                 'hrm_j.ENGIN_ID',
@@ -266,7 +271,8 @@ class SaisierjeController extends Controller implements HasMiddleware
             )
             ->from($hrm_j, 'hrm_j')
             ->joinSub($him_j, 'him_j', 'hrm_j.ENGIN_ID', '=', 'him_j.ENGIN_ID');
-
+*/
+        /*
         $res_m = DB::query()
             ->select(
                 'hrm_m.ENGIN_ID',
@@ -286,7 +292,8 @@ class SaisierjeController extends Controller implements HasMiddleware
             )
             ->from($hrm_m, 'hrm_m')
             ->joinSub($him_m, 'him_m', 'hrm_m.ENGIN_ID', '=', 'him_m.ENGIN_ID');
-
+            */
+        /*
         $res_a = DB::query()
             ->select(
                 'hrm_a.ENGIN_ID',
@@ -306,7 +313,9 @@ class SaisierjeController extends Controller implements HasMiddleware
             )
             ->from($hrm_a, 'hrm_a')
             ->joinSub($him_a, 'him_a', 'hrm_a.ENGIN_ID', '=', 'him_a.ENGIN_ID');
+            */
 
+        /*
         $res_1 =  DB::query()
             ->select(
                 'res_j.ENGIN_ID',
@@ -328,7 +337,9 @@ class SaisierjeController extends Controller implements HasMiddleware
             ->from($res_j, 'res_j')
             ->joinSub($res_m, 'res_m', 'res_j.ENGIN_ID', '=', 'res_m.ENGIN_ID');
 
-        $res_final = DB::query()
+*/
+        /*
+            $res_final = DB::query()
             ->select(
                 'res_1.ENGIN_ID',
                 'res_1.SITE_ID',
@@ -355,6 +366,158 @@ class SaisierjeController extends Controller implements HasMiddleware
             ->joinSub($res_a, 'res_a', 'res_1.ENGIN_ID', '=', 'res_a.ENGIN_ID')
             ->get();
 
-        return $res_final;
+*/
+
+
+        $rje = DB::query()
+            ->select(
+                'r_hrm_j.*',
+                'r_hrm_m.*',
+                'r_hrm_a.*',
+
+                'r_him_j.*',
+                'r_him_m.*',
+                'r_him_a.*',
+
+                DB::raw('ROUND(100*(1-r_him_j.HIM_J/r_hrm_j.NHO_J),2) AS DISP_J'),
+                DB::raw('ROUND(100*r_hrm_j.HRM_J/r_hrm_j.NHO_J,2) AS TDM_J'),
+                DB::raw('ROUND(r_hrm_j.HRM_J/r_him_j.NI_J,2) AS MTBF_J'),
+
+                DB::raw('ROUND(100*(1-r_him_m.HIM_M/r_hrm_m.NHO_M),2) AS DISP_M'),
+                DB::raw('ROUND(100*r_hrm_m.HRM_M/r_hrm_m.NHO_M,2) AS TDM_M'),
+                DB::raw('ROUND(r_hrm_m.HRM_M/r_him_m.NI_M,2) AS MTBF_M'),
+
+                DB::raw('ROUND(100*(1-r_him_a.HIM_A/r_hrm_a.NHO_A),2) AS DISP_A'),
+                DB::raw('ROUND(100*r_hrm_a.HRM_A/r_hrm_a.NHO_A,2) AS TDM_A'),
+                DB::raw('ROUND(r_hrm_a.HRM_A/r_him_a.NI_A,2) AS MTBF_A'),
+
+            )
+            // HRM
+            ->fromSub(function ($query) use ($datejre) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    's.id AS SITE_ID',
+                    's.name AS SITE',
+                    DB::raw('SUM(shrm.hrm) AS HRM_J'),
+
+                    'shrm.datesaisie AS JOUR',
+                    'shrm.nho AS NHO_J',
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehrms AS shrm', function ($join) use ($datejre) {
+                        $join->on('e.id', '=', 'shrm.engin_id');
+                        $join->on(function ($query) use ($datejre) {
+                            $query->whereDate('shrm.datesaisie', '=', $datejre);
+                        });
+                    })
+                    ->leftJoin('sites AS s', 's.id', '=', 'shrm.site_id')
+                    ->groupBy('e.id');
+            }, 'r_hrm_j')
+            ->joinSub(function ($query) use ($month, $year) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    's.id AS SITE_ID',
+                    's.name AS SITE',
+                    DB::raw('SUM(shrm.hrm) AS HRM_M'),
+
+                    DB::raw('SUM(shrm.nho) AS NHO_M'),
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehrms AS shrm', function ($join) use ($month, $year) {
+                        $join->on('e.id', '=', 'shrm.engin_id');
+                        $join->on(function ($query) use ($month, $year) {
+                            $query
+                                ->whereMonth('shrm.datesaisie', $month)
+                                ->whereYear('shrm.datesaisie', $year);
+                        });
+                    })
+                    ->leftJoin('sites AS s', 's.id', '=', 'shrm.site_id')
+                    ->groupBy('e.id');
+            }, 'r_hrm_m', 'r_hrm_j.ENGIN_ID', '=', 'r_hrm_m.ENGIN_ID')
+            ->joinSub(function ($query) use ($year) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    's.id AS SITE_ID',
+                    's.name AS SITE',
+                    DB::raw('SUM(shrm.hrm) AS HRM_A'),
+
+                    DB::raw('SUM(shrm.nho) AS NHO_A'),
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehrms AS shrm', function ($join) use ($year) {
+                        $join->on('e.id', '=', 'shrm.engin_id');
+                        $join->on(function ($query) use ($year) {
+                            $query
+                                ->whereYear('shrm.datesaisie', $year);
+                        });
+                    })
+                    ->leftJoin('sites AS s', 's.id', '=', 'shrm.site_id')
+                    ->groupBy('e.id');
+            }, 'r_hrm_a', 'r_hrm_j.ENGIN_ID', '=', 'r_hrm_a.ENGIN_ID')
+
+            // HIM
+            ->joinSub(function ($query) use ($datejre) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    DB::raw('SUM(shim.him) AS HIM_J'),
+                    DB::raw('SUM(shim.ni) AS NI_J'),
+
+                    'shim.datesaisie AS JOUR',
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehims AS shim', function ($join) use ($datejre) {
+                        $join->on('e.id', '=', 'shim.engin_id');
+                        $join->on(function ($query) use ($datejre) {
+                            $query->whereDate('shim.datesaisie', '=', $datejre);
+                        });
+                    })
+                    ->groupBy('e.id');
+            }, 'r_him_j', 'r_hrm_j.ENGIN_ID', '=', 'r_him_j.ENGIN_ID')
+            ->joinSub(function ($query) use ($month, $year) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    DB::raw('SUM(shim.him) AS HIM_M'),
+                    DB::raw('SUM(shim.ni) AS NI_M'),
+
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehims AS shim', function ($join) use ($month, $year) {
+                        $join->on('e.id', '=', 'shim.engin_id');
+                        $join->on(function ($query) use ($month, $year) {
+                            $query
+                                ->whereMonth('shim.datesaisie', $month)
+                                ->whereYear('shim.datesaisie', $year);
+                        });
+                    })
+                    ->groupBy('e.id');
+            }, 'r_him_m', 'r_hrm_m.ENGIN_ID', '=', 'r_him_m.ENGIN_ID')
+            ->joinSub(function ($query) use ($month, $year) {
+                $query->select([
+                    'e.id AS ENGIN_ID',
+                    DB::raw('SUM(shim.him) AS HIM_A'),
+                    DB::raw('SUM(shim.ni) AS NI_A'),
+
+                    'e.name AS ENGIN'
+                ])
+                    ->from('engins AS e')
+                    ->leftJoin('saisiehims AS shim', function ($join) use ($month, $year) {
+                        $join->on('e.id', '=', 'shim.engin_id');
+                        $join->on(function ($query) use ($month, $year) {
+                            $query
+                                ->whereYear('shim.datesaisie', $year);
+                        });
+                    })
+                    ->groupBy('e.id');
+            }, 'r_him_a', 'r_hrm_a.ENGIN_ID', '=', 'r_him_a.ENGIN_ID')
+            ->get();
+
+
+
+        return $rje;
     }
 }
