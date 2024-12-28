@@ -90,7 +90,6 @@ class SaisierjeController extends Controller implements HasMiddleware
             'ni'         => 'required|numeric|min:0',
         ]);
 
-
         //TODO: verify that the sum of him hrm is less then 24h
 
         $saisierje->update($fields);
