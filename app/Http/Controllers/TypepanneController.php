@@ -50,7 +50,7 @@ class TypepanneController extends Controller implements HasMiddleware
     public function update(Request $request, Typepanne $typepanne)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Typepanne,' . $typepanne->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $typepanne->id,
         ]);
         $typepanne->update($fields);
         return $typepanne;

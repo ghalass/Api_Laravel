@@ -51,7 +51,7 @@ class LubrifiantController extends Controller implements HasMiddleware
     public function update(Request $request, Lubrifiant $lubrifiant)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Lubrifiant,' . $lubrifiant->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $lubrifiant->id,
             'typelubrifiant_id'   => 'required|exists:App\Models\Typelubrifiant,id'
         ]);
         $lubrifiant->update($fields);

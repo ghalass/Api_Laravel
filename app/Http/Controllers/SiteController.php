@@ -7,6 +7,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Http\Request;
 
+
 class SiteController extends Controller implements HasMiddleware
 {
     public static function middleware()
@@ -51,7 +52,7 @@ class SiteController extends Controller implements HasMiddleware
     public function update(Request $request, Site $site)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Site,' . $site->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $site->id,
             'description'   => 'required',
         ]);
         $site->update($fields);

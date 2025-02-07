@@ -51,7 +51,7 @@ class PanneController extends Controller implements HasMiddleware
     public function update(Request $request, Panne $panne)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Panne,' . $panne->id,
+            'name'          => 'required|max:255|uunique:sites,name,' . $panne->id,
             'typepanne_id'   => 'required|exists:App\Models\Typepanne,id'
         ]);
         $panne->update($fields);

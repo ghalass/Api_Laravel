@@ -53,7 +53,7 @@ class EnginController extends Controller implements HasMiddleware
     public function update(Request $request, Engin $engin)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Engin,' . $engin->id,
+            'name'          => 'required|max:255|uunique:sites,name,' . $engin->id,
             'description'   => 'required',
             'parc_id'   => 'required|exists:App\Models\Parc,id',
             'site_id'       => 'required|exists:App\Models\Site,id',

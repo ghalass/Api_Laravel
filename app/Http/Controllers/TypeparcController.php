@@ -51,7 +51,7 @@ class TypeparcController extends Controller  implements HasMiddleware
     public function update(Request $request, Typeparc $typeparc)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Typeparc,' . $typeparc->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $typeparc->id,
             'description'   => 'required',
         ]);
         $typeparc->update($fields);

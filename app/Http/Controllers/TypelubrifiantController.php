@@ -50,7 +50,7 @@ class TypelubrifiantController extends Controller implements HasMiddleware
     public function update(Request $request, Typelubrifiant $typelubrifiant)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Typelubrifiant,' . $typelubrifiant->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $typelubrifiant->id,
         ]);
         $typelubrifiant->update($fields);
         return $typelubrifiant;

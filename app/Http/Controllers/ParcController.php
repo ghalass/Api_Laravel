@@ -52,7 +52,7 @@ class ParcController extends Controller implements HasMiddleware
     public function update(Request $request, Parc $parc)
     {
         $fields = $request->validate([
-            'name'          => 'required|max:255|unique:App\Models\Parc,' . $parc->id,
+            'name'          => 'required|max:255|unique:sites,name,' . $parc->id,
             'description'   => 'required',
             'typeparc_id'   => 'required|exists:App\Models\Typeparc,id'
         ]);

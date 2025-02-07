@@ -28,6 +28,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth:sanctum');
 
+Route::get('/', function () {
+    $routeCollection = Route::getRoutes();
+    return view('welcome', [
+        'routeCollection' => $routeCollection
+    ]);
+});
+
 Route::apiResource('posts', PostController::class);
 Route::apiResource('sites', SiteController::class);
 Route::apiResource('typeparcs', TypeparcController::class);
