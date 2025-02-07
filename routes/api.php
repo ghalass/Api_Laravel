@@ -15,6 +15,7 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\TypelubrifiantController;
 use App\Http\Controllers\TypepanneController;
 use App\Http\Controllers\TypeparcController;
+use App\Http\Middleware\CheckTokenExpiration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,22 +36,25 @@ Route::get('/', function () {
     ]);
 });
 
-Route::apiResource('posts', PostController::class);
-Route::apiResource('sites', SiteController::class);
-Route::apiResource('typeparcs', TypeparcController::class);
-Route::apiResource('parcs', ParcController::class);
-Route::apiResource('engins', EnginController::class);
-Route::apiResource('typepannes', TypepanneController::class);
-Route::apiResource('pannes', PanneController::class);
-Route::apiResource('typelubrifiants', TypelubrifiantController::class);
-Route::apiResource('lubrifiants', LubrifiantController::class);
+Route::withoutMiddleware([CheckTokenExpiration::class])->group(function () {
 
-Route::get('/saisierjes/getRJE', [SaisierjeController::class, 'getRJE']);
-Route::apiResource('saisierjes', SaisierjeController::class);
+    Route::apiResource('posts', PostController::class);
+    Route::apiResource('sites', SiteController::class);
+    Route::apiResource('typeparcs', TypeparcController::class);
+    Route::apiResource('parcs', ParcController::class);
+    Route::apiResource('engins', EnginController::class);
+    Route::apiResource('typepannes', TypepanneController::class);
+    Route::apiResource('pannes', PanneController::class);
+    Route::apiResource('typelubrifiants', TypelubrifiantController::class);
+    Route::apiResource('lubrifiants', LubrifiantController::class);
 
-Route::get('/reports/getRJE', [ReportController::class, 'getRJE']);
+    Route::get('/saisierjes/getRJE', [SaisierjeController::class, 'getRJE']);
+    Route::apiResource('saisierjes', SaisierjeController::class);
 
-Route::apiResource('saisiehrms', SaisiehrmController::class);
-Route::apiResource('saisiehims', SaisiehimController::class);
+    Route::get('/reports/getRJE', [ReportController::class, 'getRJE']);
 
-Route::apiResource('saisielubrifiants', SaisielubrifiantController::class);
+    Route::apiResource('saisiehrms', SaisiehrmController::class);
+    Route::apiResource('saisiehims', SaisiehimController::class);
+
+    Route::apiResource('saisielubrifiants', SaisielubrifiantController::class);
+});

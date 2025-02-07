@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -37,18 +38,19 @@ class AuthController extends Controller
                 ]
             ];
         }
-        $token = $user->createToken($user->name);
+        $token = $user->createToken($user->name, ['*'], now()->addMinutes(60))->plainTextToken;
         return [
             'user'  => $user,
-            'token' => $token->plainTextToken
+            'token' => $token
         ];
     }
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return [
-            'message' => "Vous êtez déconnecté!"
-        ];
+        $request->user()->currentAccessToken()->delete();
+        // $request->user()->tokens()->delete();
+        // return [
+        //     'message' => "Vous êtez déconnecté!",
+        // ];
     }
 }
