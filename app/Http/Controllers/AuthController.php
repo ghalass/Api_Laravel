@@ -30,7 +30,12 @@ class AuthController extends Controller
             'email'     => 'required|email|exists:users',
             'password'  => 'required'
         ]);
+
         $user = User::where('email', $request->email)->first();
+
+        // delete all token in personal_access_tokens table for the current user
+        $user->tokens()->where('name', $user->name)->delete();
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             return [
                 'errors' => [
@@ -38,6 +43,7 @@ class AuthController extends Controller
                 ]
             ];
         }
+        // create token
         $token = $user->createToken($user->name, ['*'], now()->addMinutes(60))->plainTextToken;
         return [
             'user'  => $user,
@@ -48,9 +54,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        // $request->user()->tokens()->delete();
-        // return [
-        //     'message' => "Vous êtez déconnecté!",
-        // ];
+        return [
+            'message' => "Vous êtez déconnecté!",
+        ];
     }
 }
